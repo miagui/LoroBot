@@ -1,8 +1,8 @@
 {
-  "name": "TypeScript-teste",
+  "name": "DiscordBot-Loro-TS",
   "version": "1.0.0",
   "description": "",
-  "main": "./build/BotClient/BotClient.js",
+  "main": "./build/app.js",
   "dependencies": {
     "@types/cheerio": "^0.22.17",
     "@types/cron": "^1.7.2",
