@@ -4,7 +4,7 @@ var jsonCron = require("./cron/jsonCron.js")
 const client  = new Discord.Client();
 
 // * Token que faz o bot funcionar. Ela é secreta e nínguem pode saber.
-var token: string = "NDU2ODc1MDMwMTQwMTU3OTU0.XnKNtw.uoSZnY5J26jvSlk3F1IEogFuJJ8";
+var token: string | undefined = process.env.token;
 
 // * Adiciona uma ação para o evento ready (quando o bot for iniciado).
 // * Nesse caso, ele manda no log uma mensagem de que ele está logado.
