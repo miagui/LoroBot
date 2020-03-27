@@ -1,0 +1,27 @@
+{
+  "name": "TypeScript-teste",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./build/BotClient/BotClient.js",
+  "dependencies": {
+    "@types/cheerio": "^0.22.17",
+    "@types/cron": "^1.7.2",
+    "@types/node-fetch": "^2.5.5",
+    "@types/ws": "^7.2.3",
+    "cheerio": "^1.0.0-rc.3",
+    "cron": "^1.8.2",
+    "fuse.js": "^5.0.9-beta",
+    "node-fetch": "^2.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^13.9.1",
+    "discord.js": "^12.0.2",
+    "typescript": "^3.8.3"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
