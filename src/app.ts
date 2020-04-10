@@ -1,11 +1,22 @@
 import Discord from 'discord.js';
 import fs  from 'fs';
-import { performance } from 'perf_hooks';
+import dotenv from 'dotenv'
 var jsonCron = require("./cron/jsonCron.js")
 const client  = new Discord.Client();
 
 // * Token que faz o bot funcionar. Ela é secreta e nínguem pode saber.
-var token: string | undefined = process.env.token;
+if (process.env.NODE_ENV == 'working')
+{
+    var token: string | undefined = process.env.token
+}
+else 
+{
+    dotenv.config(
+        {
+            path: 'build\\.env'
+        })
+    var token: string | undefined = process.env.token
+}
 
 // * Adiciona uma ação para o evento ready (quando o bot for iniciado).
 // * Nesse caso, ele manda no log uma mensagem de que ele está logado.

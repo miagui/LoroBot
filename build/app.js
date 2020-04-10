@@ -4,10 +4,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const discord_js_1 = __importDefault(require("discord.js"));
+const dotenv_1 = __importDefault(require("dotenv"));
 var jsonCron = require("./cron/jsonCron.js");
 const client = new discord_js_1.default.Client();
 // * Token que faz o bot funcionar. Ela é secreta e nínguem pode saber.
-var token = process.env.token;
+if (process.env.NODE_ENV == 'working') {
+    var token = process.env.token;
+}
+else {
+    dotenv_1.default.config({
+        path: 'build\\.env'
+    });
+    var token = process.env.token;
+}
 // * Adiciona uma ação para o evento ready (quando o bot for iniciado).
 // * Nesse caso, ele manda no log uma mensagem de que ele está logado.
 client.on("ready", () => {

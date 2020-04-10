@@ -1,7 +1,8 @@
-import fetch from "node-fetch"
+import fetch, { Headers } from "node-fetch"
 import $ from 'cheerio'
 import {App} from '../interfaces/ISteamSchema'
 import * as toolLibrary from '../library/helperFunctions'
+import fs from "fs";
 
 export async function buscarAppId(nomeJogo: string): Promise<number>
 {
@@ -25,7 +26,7 @@ export async function buscarAppId(nomeJogo: string): Promise<number>
 
 export async function getPlayersCount(appId: number): Promise<number>
 {
-    var res = await fetch(`https://api.steampowered.com/ISteamUserStats/GetNumberOfCurrentPlayers/v1/?format=json&appid=${appId}&cc=br`)
+    var res = await fetch(`https://api.steampowered.com/ISteamUserStats/GetNumberOfCurrentPlayers/v1/?format=json&appid=${appId}`)
     var body = await res.json()
     var playerCount: number = body.response.player_count
     return playerCount;
@@ -33,7 +34,7 @@ export async function getPlayersCount(appId: number): Promise<number>
 
 export async function getAppDetails(appId: number): Promise<App.Data>
 {
-    var res = await fetch(`https://store.steampowered.com/api/appdetails/?appids=${appId}`)
+    var res = await fetch(`https://store.steampowered.com/api/appdetails/?appids=${appId}&cc=br`)
     var body = await res.json()
     var appDetails: App.Data = body[appId!].data
     return appDetails;
@@ -49,7 +50,19 @@ export function toHtmlFormat(appName: string): string
 
 export async function getHistoricalLow(appName: string): Promise<any>
 {
-    var res = await fetch(`https://gg.deals/game/${toHtmlFormat(appName)}`)
+    // * Esse cookie guarda a sessão que deixa a região em PT-BR, assim evitando que valores apareceram
+    // * em outra moeda caso esteja hospedado em um servidor de outro país.
+    var cookie = "gg-session=ecuf69rmgps7pkmthsmm93dmok; gg_csrf=33e7ff54a14c8693ade8da7da59303a13d39b605s%3A88%3A%22NWZkU1kxeU5rMmlhcWNQN0h3NjlybVR2X29ram5zVVr9iB74Q64E004YnvlWzbwwcyrelT1Om_dTjuiIENLBJQ%3D%3D%22%3B"
+    var header = new Headers(
+    {
+        'Cookie': cookie,
+        'Accept-Language': 'en-US'
+
+    })
+    var res = await fetch(`https://gg.deals/game/${toHtmlFormat(appName)}`, 
+    {
+        headers: header
+    })
     console.log(`Buscando em https://gg.deals/game/${toHtmlFormat(appName)}`)
     var body = await res.text()
 
