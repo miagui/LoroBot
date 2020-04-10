@@ -7,7 +7,7 @@ const discord_js_1 = __importDefault(require("discord.js"));
 var jsonCron = require("./cron/jsonCron.js");
 const client = new discord_js_1.default.Client();
 // * Token que faz o bot funcionar. Ela é secreta e nínguem pode saber.
-var token = 'NDU2ODc1MDMwMTQwMTU3OTU0.Xn4GwA.l4D1dLZx1xRFoGBvPC9E-ms1D0k';
+var token = process.env.token;
 // * Adiciona uma ação para o evento ready (quando o bot for iniciado).
 // * Nesse caso, ele manda no log uma mensagem de que ele está logado.
 client.on("ready", () => {
