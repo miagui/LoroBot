@@ -1,3 +1,4 @@
+// * Endpoint: http://api.steampowered.com/ISteamApps/GetAppList/v2
 export namespace SteamAppList {
 
     interface rootAppList {
@@ -14,9 +15,11 @@ export namespace SteamAppList {
     }
 }
 
+//* Endpoint: https://store.steampowered.com/api/appdetails/?appids=440
 export namespace App {
 
-      
+      // * 'Game' não é usado atualmente no no schema, pois ele representa o AppId de um jogo,
+      // * sendo assim não é possivel criar uma tipificação para algo dinamico (appid)
       export interface Game {
         success: boolean;
         data: Data;

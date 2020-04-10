@@ -7,7 +7,7 @@ const discord_js_1 = __importDefault(require("discord.js"));
 var jsonCron = require("./cron/jsonCron.js");
 const client = new discord_js_1.default.Client();
 // * Token que faz o bot funcionar. Ela é secreta e nínguem pode saber.
-var token = process.env.token;
+var token = 'NDU2ODc1MDMwMTQwMTU3OTU0.Xn4GwA.l4D1dLZx1xRFoGBvPC9E-ms1D0k';
 // * Adiciona uma ação para o evento ready (quando o bot for iniciado).
 // * Nesse caso, ele manda no log uma mensagem de que ele está logado.
 client.on("ready", () => {
@@ -16,12 +16,14 @@ client.on("ready", () => {
     jsonCron.Iniciar();
 });
 client.on("message", msg => {
-    var _a, _b;
+    var _a, _b, _c, _d;
+    // * let t0 = performance.now()
     let prefix = "!";
     if ((_a = msg.author) === null || _a === void 0 ? void 0 : _a.bot)
         return; // Se a mensagem for do bot, então retorne nada
     if (((_b = msg.content) === null || _b === void 0 ? void 0 : _b.toString()[0]) != prefix)
         return; // Se não houver prefixo '!', então retorne nada 
+    (_c = msg.channel) === null || _c === void 0 ? void 0 : _c.startTyping();
     // * Pega o comando através de vários processos para filtrar apenas o nome e não argumentos.
     // * slice: Corta o primeiro prefixo; trim: Corta os espaços em branco; split: Corta os argumentos do comando
     // * usando de regex (corta por todo espaço em branco depois do comando).
@@ -35,8 +37,10 @@ client.on("message", msg => {
     catch (e) {
         // * Se não encontrar o módulo, manda mensagem que não existe o comando.
         if (e.code === "MODULE_NOT_FOUND")
-            msg.reply("Comando não existente.");
-        console.log(e);
+            console.log(e);
     }
+    (_d = msg.channel) === null || _d === void 0 ? void 0 : _d.stopTyping();
+    // * let t1 = performance.now()
+    // * console.log(`${t0 - t1}ms para responder ${command}`)
 });
 client.login(token);

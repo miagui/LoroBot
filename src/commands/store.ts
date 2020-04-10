@@ -4,69 +4,74 @@ import { Client, Message } from 'discord.js'
 import { App } from '../interfaces/ISteamSchema'
 import fetch from "node-fetch"
 import $ from 'cheerio'
+import * as steamLibrary from '../library/steamFunctions'
+import { weeksBetween } from "../library/helperFunctions";
 
 const ROOT = require('path').dirname(require.main?.filename);
 
-export function run(client: Client, msg: Message, cmd: string, args: string) {
+export async function run(client: Client, msg: Message, cmd: string, args: string) {
      // * Busca na própria engine de search da Steam. Aqui é feito Scrap da página.
-     fetch(`https://store.steampowered.com/search/?term=${args}`)
-          .then(res => res.text())
-          .then(body => {
-               // * Busca o primeiro AppID da página que for do atributo
-               // * 'data-ds-appid' e estiver como um filho elemento de ID search_resultRows.
-               var appId = $('a', '#search_resultsRows', body).attr('data-ds-appid')
+     var appId = await steamLibrary.buscarAppId(args);
+     if (appId) {
 
-               // * Se for encontrado, prossiga com a operação.
-               // * Caso contrário mande mensagem de que não encontrou o jogo.
-               if (appId) {
-                    fetch(`https://store.steampowered.com/api/appdetails/?appids=${appId}`)
-                         .then(res => res.json())
-                         .then(body => {
-                              var app: App.Data = body[appId!].data;
-                              var reply: string = `Encontrado o jogo ${app.name}.\n`;
-                              // * Verifica se existe a propriedade de preço no jogo.
-                              if (app.price_overview)
-                              {
-                                   var initialPrice: string | undefined = app.price_overview.initial_formatted;
-                                   var finalPrice: string | undefined = app.price_overview.final_formatted;
-                                   var discount: number | undefined = app.price_overview.discount_percent;
-                              }
+          var app: App.Data = await steamLibrary.getAppDetails(appId);
+          var reply: string = `Encontrado o jogo ${app.name}.\n`;
 
-                              // * Verifica se o jogo é F2P ou não.
-                              if (app.is_free) 
-                              {
-                                   reply = reply.concat("Free To Play\n");
-                              }
-                              else if (!app.is_free && !app.price_overview)
-                              {
-                                   reply = reply.concat("Sem preço encontrado.\n");
-                              }
-                              else {
-                                   if (discount == 0) {
-                                        reply = reply.concat(`Preço: ${finalPrice} (Sem desconto no momento).\n`)
-                                   }
-                                   else {
-                                        reply = reply.concat(`Preço: ~~${initialPrice} ~~${finalPrice} (${discount}% de desconto).\n`)
-                                   }
-                              }
+          // * Verifica se existe a propriedade de preço no jogo.
+          if (app.price_overview) 
+          {
+               var initialPrice: string | undefined = app.price_overview.initial_formatted;
+               var finalPrice: string | undefined = app.price_overview.final_formatted;
+               var discount: number | undefined = app.price_overview.discount_percent;
+          }
 
-                              // * Verifica se o jogo já foi lançado ou não.
-                              if (app.release_date.coming_soon) {
-                                   reply = reply.concat(`Lançamento em breve.`);
-                              }
-                              else {
-                                   reply = reply.concat(`Data de lançamento: ${app.release_date.date}\n`);
-                              }
-                              // * Adiciona o link da página da steam do jogo.
-                              reply = reply.concat(`https://store.steampowered.com/app/${appId}`)
-                              msg.channel.send(reply)
-                         })
+          // * Verifica se o jogo é F2P ou não.
+          if (app.is_free) 
+          {
+               reply = reply.concat("Free To Play\n");
+          }
+          else if (!app.is_free && !app.price_overview) 
+          {
+               reply = reply.concat("Sem preço encontrado.\n");
+          }
+          else {
+               // * Adiciona a queda histórica, buscada do GG Deals.
+               if (discount == 0) 
+               {
+                    reply = reply.concat(`Preço: ${finalPrice} (Sem desconto no momento).\n`)
                }
                else 
                {
-                    msg.channel.send("Jogo não encontrado.")
+                    reply = reply.concat(`Preço: ~~${initialPrice} ~~${finalPrice} (${discount}% de desconto).\n`)
                }
-          })
+
+               var historicalLow: [string, Date] = await steamLibrary.getHistoricalLow(app.name)
+               var lowestPrice: string = historicalLow[0]
+               var lastTime: number = weeksBetween(historicalLow[1], new Date())
+               reply = reply.concat(`Queda histórica: ${lowestPrice} (${lastTime} semanas atrás).\n`)
+          }
+
+          // * Verifica se o jogo já foi lançado ou não.
+          if (app.release_date.coming_soon) 
+          {
+               reply = reply.concat(`Lançamento em breve.\n`);
+          }
+          else 
+          {
+               reply = reply.concat(`Data de lançamento: ${app.release_date.date}\n`);
+          }
+
+          
+          // * Adiciona o link da página da steam do jogo.
+          reply = reply.concat(`https://store.steampowered.com/app/${appId}`)
+          msg.channel.send(reply)
+     }
+     else 
+     {
+          msg.channel.send("Jogo não encontrado.")
+     }
+
+
 }
 export var Usage = "!store `<nomedojogo>`"
 export var Info = "Busca por um jogo na Steam."
